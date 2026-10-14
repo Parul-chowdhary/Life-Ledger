@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "lifeledger-sdk"
+version = "1.0.0"
+description = "Official Python Client SDK for LifeLedger Intelligence Platform"
+authors = ["LifeLedger Team <architect@lifeledger.internal>"]
+readme = "README.md"
+packages = [{ include = "lifeledger_sdk", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.31.0"
+pydantic = "^2.6.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

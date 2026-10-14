@@ -1,0 +1,57 @@
+[tool.poetry]
+name = "lifeledger"
+version = "1.0.0"
+description = "LifeLedger — Personal Document, Warranty and Deadline Intelligence Platform"
+authors = ["LifeLedger Engineering <architect@lifeledger.internal>"]
+readme = "README.md"
+license = "MIT"
+packages = [
+    { include = "lifeledger_core", from = "packages/lifeledger-core/src" },
+    { include = "lifeledger_models", from = "packages/lifeledger-models/src" },
+    { include = "lifeledger_repositories", from = "packages/lifeledger-repositories/src" },
+    { include = "lifeledger_services", from = "packages/lifeledger-services/src" },
+    { include = "lifeledger_web", from = "packages/lifeledger-web/src" },
+    { include = "lifeledger_api", from = "packages/lifeledger-api/src" },
+    { include = "lifeledger_sdk", from = "packages/lifeledger-sdk-py/src" },
+    { include = "lifeledger_cli", from = "packages/lifeledger-cli/src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+flask = "^3.1.0"
+flask-cors = "^4.0.0"
+flask-sqlalchemy = "^3.0.5"
+sqlalchemy = "^2.0.0"
+alembic = "^1.13.0"
+pydantic = "^2.6.0"
+pydantic-settings = "^2.2.0"
+cryptography = "^42.0.0"
+bcrypt = "^4.1.0"
+pillow = "^10.2.0"
+pypdf2 = "^3.0.1"
+reportlab = "^4.1.0"
+python-dateutil = "^2.8.2"
+click = "^8.1.7"
+requests = "^2.31.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-cov = "^4.1.0"
+ruff = "^0.3.0"
+mypy = "^1.8.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]

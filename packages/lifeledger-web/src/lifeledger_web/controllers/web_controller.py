@@ -23,6 +23,7 @@ from lifeledger_services.asset_service import AssetService
 from lifeledger_services.auth_service import AuthService
 from lifeledger_services.deadline_service import DeadlineService
 from lifeledger_services.ocr_service import OCRService
+from lifeledger_services.pdf_report_generator import PDFReportGenerator
 from lifeledger_services.storage_service import StorageService
 
 web_bp = Blueprint("web", __name__, template_folder="../templates", static_folder="../static")
@@ -404,6 +405,58 @@ def export_csv():
         csv_data,
         mimetype="text/csv",
         headers={"Content-Disposition": "attachment; filename=lifeledger-vault-export.csv"},
+    )
+
+
+@web_bp.route("/analytics/export-pdf")
+@login_required
+def export_pdf():
+    session = get_db_session()
+    auth_service = AuthService(session)
+    analytics_svc = AnalyticsService(session)
+    doc_repo = DocumentRepository(session)
+    dl_repo = DeadlineRepository(session)
+
+    workspace = auth_service.get_user_default_workspace(g.user.id)
+    metrics = analytics_svc.get_dashboard_metrics(workspace.id)
+    documents = doc_repo.list_by_workspace(workspace.id)
+    deadlines = dl_repo.list_by_workspace(workspace.id)
+
+    doc_dicts = [
+        {
+            "title": d.title,
+            "category": d.category,
+            "issuing_authority": d.issuing_authority,
+            "expiry_date": d.expiry_date.isoformat() if d.expiry_date else None,
+            "is_ice_document": d.is_ice_document,
+        }
+        for d in documents
+    ]
+    dl_dicts = [
+        {
+            "title": dl.title,
+            "due_date": dl.due_date.isoformat() if dl.due_date else None,
+            "priority": dl.priority,
+            "renewal_cost": float(dl.renewal_cost) if dl.renewal_cost else 0.0,
+            "status": dl.status,
+        }
+        for dl in deadlines
+    ]
+
+    pdf_bytes = PDFReportGenerator.generate_vault_report(
+        workspace_name=workspace.name,
+        owner_name=g.user.full_name,
+        metrics=metrics,
+        documents=doc_dicts,
+        deadlines=dl_dicts,
+    )
+
+    clean_name = "".join(c if c.isalnum() else "-" for c in workspace.name.lower()).strip("-")
+    return send_file(
+        io.BytesIO(pdf_bytes),
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=f"lifeledger-audit-{clean_name}.pdf",
     )
 
 

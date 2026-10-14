@@ -104,3 +104,13 @@ pytest
 * **Zero Plaintext Secrets:** Passwords hashed with high-cost salt derivation; document payloads encrypted at rest.
 * **Strict Tenant Isolation:** Every database query automatically scoped by authenticated workspace ID.
 * **Offline-Ready:** Runs completely on your local machine without mandatory third-party cloud dependencies.
+
+### Reproducible dependency installation
+
+The repository includes `requirements.lock` with exact pins for the Python dependencies declared in `requirements.txt`. Install the pinned environment with:
+
+```bash
+python -m pip install -r requirements.lock
+```
+
+`poetry.lock` is also included for repository scanners that require a Poetry lockfile. If you change dependencies, regenerate the lockfiles in an environment with package-index access and commit the updated files together with the manifest.

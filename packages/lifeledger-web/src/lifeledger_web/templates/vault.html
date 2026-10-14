@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Document Vault — LifeLedger{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+  <div>
+    <h1 style="font-size: 1.85rem; font-weight: 700;">Encrypted Document Vault</h1>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">Client-side AES-256 envelope encrypted repository with instant search</p>
+  </div>
+  <a href="{{ url_for('web.upload') }}" class="btn btn-primary">+ Upload Document</a>
+</div>
+
+<!-- Search and Filter Bar -->
+<div class="filter-bar">
+  <div class="tabs">
+    <a href="{{ url_for('web.vault', category='all') }}" class="tab {% if not current_category or current_category == 'all' %}active{% endif %}">All Records</a>
+    <a href="{{ url_for('web.vault', category='insurance') }}" class="tab {% if current_category == 'insurance' %}active{% endif %}">Insurance</a>
+    <a href="{{ url_for('web.vault', category='identity') }}" class="tab {% if current_category == 'identity' %}active{% endif %}">Identity</a>
+    <a href="{{ url_for('web.vault', category='warranty') }}" class="tab {% if current_category == 'warranty' %}active{% endif %}">Warranties</a>
+    <a href="{{ url_for('web.vault', category='bill') }}" class="tab {% if current_category == 'bill' %}active{% endif %}">Bills</a>
+    <a href="{{ url_for('web.vault', category='vehicle') }}" class="tab {% if current_category == 'vehicle' %}active{% endif %}">Vehicle</a>
+    <a href="{{ url_for('web.vault', category='property') }}" class="tab {% if current_category == 'property' %}active{% endif %}">Property</a>
+  </div>
+
+  <div style="position: relative; width: 320px;">
+    <input type="text" id="vault-search-input" placeholder="Instant search by title, issuer, tag..."
+           style="width: 100%; padding: 8px 14px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.85rem;">
+  </div>
+</div>
+
+<!-- Vault Documents Table -->
+<div class="table-card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Document Title</th>
+        <th>Category</th>
+        <th>Issuing Authority</th>
+        <th>Expiry Date</th>
+        <th>Versions</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for doc in documents %}
+      <tr class="vault-doc-row">
+        <td>
+          <div style="font-weight: 600;">
+            <a href="{{ url_for('web.view_document', doc_id=doc.id) }}">{{ doc.title }}</a>
+            {% if doc.is_ice_document %}
+            <span class="badge badge-ice" style="margin-left: 6px;">ICE Emergency</span>
+            {% endif %}
+          </div>
+          {% if doc.versions %}
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+            {{ doc.versions[0].file_name }} • {{ "{:,.1f}".format(doc.versions[0].file_size_bytes / 1024) }} KB
+          </div>
+          {% endif %}
+        </td>
+        <td>
+          <span class="badge badge-info">{{ doc.category|capitalize }}</span>
+        </td>
+        <td>
+          {{ doc.issuing_authority or 'Personal Record' }}
+        </td>
+        <td>
+          {% if doc.expiry_date %}
+            {% set days_left = (doc.expiry_date - today).days %}
+            {% if days_left < 0 %}
+              <span class="badge badge-danger">Expired ({{ doc.expiry_date.strftime('%b %d, %Y') }})</span>
+            {% elif days_left <= 30 %}
+              <span class="badge badge-warning">Expires in {{ days_left }}d</span>
+            {% else %}
+              <span class="badge badge-success">{{ doc.expiry_date.strftime('%b %d, %Y') }}</span>
+            {% endif %}
+          {% else %}
+            <span style="color: var(--text-muted);">None</span>
+          {% endif %}
+        </td>
+        <td>
+          <span class="badge badge-info">v{{ doc.versions|length }}</span>
+        </td>
+        <td>
+          <div style="display: flex; gap: 6px;">
+            <a href="{{ url_for('web.view_document', doc_id=doc.id) }}" class="btn btn-secondary btn-sm">Inspect</a>
+            {% if doc.versions %}
+            <a href="{{ url_for('web.download_document', doc_id=doc.id) }}" class="btn btn-secondary btn-sm" title="Download Decrypted File">⬇️</a>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 48px;">
+          No documents found in this category. Click "+ Upload Document" above to get started.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

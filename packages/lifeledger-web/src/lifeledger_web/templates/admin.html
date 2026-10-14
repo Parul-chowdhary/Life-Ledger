@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Governance & Telemetry — LifeLedger{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 24px;">
+  <h1 style="font-size: 1.85rem; font-weight: 700;">Administrative Governance & Telemetry</h1>
+  <p style="color: var(--text-secondary); font-size: 0.9rem;">
+    System health diagnostics, storage quota monitoring, user account governance, and tamper-evident audit inspection
+  </p>
+</div>
+
+<!-- System Health Metric Cards -->
+<div class="metric-grid">
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>SYSTEM STATUS</span>
+      <span>🟢</span>
+    </div>
+    <div class="metric-value" style="color: var(--status-success);">OPERATIONAL</div>
+    <div class="metric-footer">DB & Crypto Engine Online</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>REGISTERED USERS</span>
+      <span>👥</span>
+    </div>
+    <div class="metric-value">{{ health.total_users }}</div>
+    <div class="metric-footer">{{ health.active_users }} active accounts</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>STORAGE UTILIZATION</span>
+      <span>💾</span>
+    </div>
+    <div class="metric-value">{{ health.storage_used_formatted }}</div>
+    <div class="metric-footer">{{ health.total_documents }} encrypted files</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>TOTAL WORKSPACES</span>
+      <span>🏢</span>
+    </div>
+    <div class="metric-value">{{ health.total_workspaces }}</div>
+    <div class="metric-footer">Tenant isolation verified</div>
+  </div>
+</div>
+
+<!-- User Governance Management Table -->
+<div class="table-card" style="margin-bottom: 32px; padding: 24px;">
+  <h3 style="font-size: 1.15rem; margin-bottom: 16px;">User Account Governance</h3>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Full Name</th>
+        <th>Email Address</th>
+        <th>Role</th>
+        <th>Account Status</th>
+        <th>Joined Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td><strong>{{ u.full_name }}</strong></td>
+        <td>{{ u.email }}</td>
+        <td><span class="badge badge-info">{{ u.role|upper }}</span></td>
+        <td>
+          {% if u.is_active %}
+          <span class="badge badge-success">Active</span>
+          {% else %}
+          <span class="badge badge-danger">Suspended</span>
+          {% endif %}
+        </td>
+        <td>{{ u.created_at.strftime('%b %d, %Y') }}</td>
+        <td>
+          {% if u.id != current_user.id %}
+          <form method="POST" action="{{ url_for('web.toggle_user_status', user_id=u.id) }}" style="display: inline;">
+            <button type="submit" class="btn btn-secondary btn-sm">
+              {% if u.is_active %}Suspend{% else %}Reactivate{% endif %}
+            </button>
+          </form>
+          {% else %}
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Current User</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Audit Log Inspection -->
+<div class="table-card" style="padding: 24px;">
+  <h3 style="font-size: 1.15rem; margin-bottom: 16px;">Tamper-Evident Audit Trail</h3>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Action</th>
+        <th>Resource Type</th>
+        <th>Resource ID</th>
+        <th>Actor IP</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in audit_logs %}
+      <tr>
+        <td style="font-size: 0.85rem; color: var(--text-secondary);">{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        <td><code>{{ log.action }}</code></td>
+        <td>{{ log.resource_type }}</td>
+        <td style="font-family: monospace; font-size: 0.75rem;">{{ log.resource_id or '—' }}</td>
+        <td style="font-size: 0.85rem;">{{ log.ip_address or '127.0.0.1' }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">No audit events logged yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

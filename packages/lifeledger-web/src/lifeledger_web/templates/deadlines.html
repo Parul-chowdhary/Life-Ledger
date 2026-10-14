@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Deadlines & Renewal Intelligence — LifeLedger{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+  <div>
+    <h1 style="font-size: 1.85rem; font-weight: 700;">Deadline & Renewal Intelligence</h1>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">Temporal state machine calculating upcoming renewals and multi-tier alert schedules</p>
+  </div>
+  <div style="display: flex; gap: 12px;">
+    <a href="/api/v1/deadlines/ical" class="btn btn-secondary btn-sm" download="lifeledger-deadlines.ics">📅 Export iCalendar Feed</a>
+  </div>
+</div>
+
+<!-- Two-Column Layout: Interactive Calendar Grid + Chronological Obligation List -->
+<div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px;">
+
+  <!-- Interactive Monthly Calendar -->
+  <div class="table-card" style="padding: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+      <h2 id="calendar-month-year" style="font-size: 1.3rem;">October 2026</h2>
+      <div style="display: flex; gap: 8px;">
+        <button id="cal-prev-btn" class="btn btn-secondary btn-sm">‹ Prev</button>
+        <button id="cal-next-btn" class="btn btn-secondary btn-sm">Next ›</button>
+      </div>
+    </div>
+
+    <!-- Day Headers -->
+    <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 600; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
+      <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
+    </div>
+
+    <!-- Days Grid populated via JS -->
+    <div id="calendar-days-grid" class="calendar-grid"></div>
+  </div>
+
+  <!-- Chronological List of Obligations -->
+  <div class="table-card" style="padding: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+      <h3 style="font-size: 1.15rem;">Active Deadlines</h3>
+      <div style="font-size: 0.85rem; color: var(--text-secondary);">{{ deadlines|length }} obligations</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; max-height: 520px; overflow-y: auto;">
+      {% for dl in deadlines %}
+      <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+          <div style="font-weight: 600; font-size: 0.95rem;">{{ dl.title }}</div>
+          {% if dl.status == 'overdue' %}
+            <span class="badge badge-danger">Overdue</span>
+          {% elif dl.status == 'completed' %}
+            <span class="badge badge-success">Completed</span>
+          {% else %}
+            <span class="badge badge-warning">Upcoming</span>
+          {% endif %}
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-secondary);">
+          <div>
+            <strong>Due:</strong> {{ dl.due_date.strftime('%B %d, %Y') }}
+            {% if dl.renewal_cost %}
+             • ${{ "{:,.2f}".format(dl.renewal_cost) }}
+            {% endif %}
+          </div>
+          {% if dl.status != 'completed' %}
+          <button onclick="completeDeadline('{{ dl.id }}')" class="btn btn-secondary btn-sm" style="padding: 4px 10px;">Mark Done</button>
+          {% endif %}
+        </div>
+      </div>
+      {% else %}
+      <div style="text-align: center; color: var(--text-muted); padding: 32px;">No deadlines found.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Embed Deadlines JSON for JS Calendar rendering -->
+<script>
+window.LIFELEDGER_DEADLINES = {
+  {% for dl in deadlines %}
+  "{{ dl.due_date.isoformat() }}": [
+    { title: "{{ dl.title|replace('\"', '\\\"') }}", priority: "{{ dl.priority }}", cost: {{ dl.renewal_cost or 0 }} }
+  ],
+  {% endfor %}
+};
+</script>
+{% endblock %}

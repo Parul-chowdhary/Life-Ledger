@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — LifeLedger{% endblock %}
+
+{% block content %}
+<!-- Urgent Notification Cockpit Banner -->
+{% if urgent_deadlines %}
+<div class="alert-banner">
+  <div class="alert-content">
+    <span class="alert-icon">⚠️</span>
+    <div>
+      <strong>Urgent Attention Needed:</strong> You have {{ urgent_deadlines|length }} obligation(s) expiring within 7 days.
+      <span style="color: var(--text-secondary); margin-left: 8px;">
+        {{ urgent_deadlines[0].title }} (Due {{ urgent_deadlines[0].due_date.strftime('%b %d, %Y') }})
+      </span>
+    </div>
+  </div>
+  <div style="display: flex; gap: 8px;">
+    <button onclick="completeDeadline('{{ urgent_deadlines[0].id }}')" class="btn btn-primary btn-sm">1-Click Renew</button>
+    <a href="{{ url_for('web.deadlines') }}" class="btn btn-secondary btn-sm">View All</a>
+  </div>
+</div>
+{% endif %}
+
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
+  <div>
+    <h1 style="font-size: 1.85rem; font-weight: 700;">Lifecycle Intelligence Cockpit</h1>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">Overview of household paperwork, active warranties, and temporal liabilities</p>
+  </div>
+  <div>
+    <a href="{{ url_for('web.upload') }}" class="btn btn-primary">+ Upload New Document</a>
+  </div>
+</div>
+
+<!-- 4 Key Metric Cockpit Tiles -->
+<div class="metric-grid">
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>ACTIVE RECORDS</span>
+      <span>📁</span>
+    </div>
+    <div class="metric-value">{{ metrics.total_documents }}</div>
+    <div class="metric-footer">Stored in AES-256 Vault</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>30-DAY RENEWALS</span>
+      <span>💳</span>
+    </div>
+    <div class="metric-value">${{ "{:,.2f}".format(metrics.due_30d_cost) }}</div>
+    <div class="metric-footer">{{ metrics.urgent_count }} urgent / {{ metrics.overdue_count }} overdue</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>PROTECTED ASSETS</span>
+      <span>🛡️</span>
+    </div>
+    <div class="metric-value">{{ metrics.active_warranties }}</div>
+    <div class="metric-footer">${{ "{:,.2f}".format(metrics.total_warranty_value) }} insured value</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>VAULT HEALTH SCORE</span>
+      <span>✨</span>
+    </div>
+    <div class="metric-value" style="color: {% if metrics.health_score >= 85 %}var(--status-success){% else %}var(--status-warning){% endif %};">
+      {{ metrics.health_score }}%
+    </div>
+    <div class="metric-footer">Paperwork compliance rating</div>
+  </div>
+</div>
+
+<!-- Two-Column Layout: Recent Documents & Upcoming Timeline -->
+<div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; margin-top: 24px;">
+
+  <!-- Column 1: Recent Documents in Vault -->
+  <div class="table-card" style="padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 1.15rem;">Recent Vault Documents</h3>
+      <a href="{{ url_for('web.vault') }}" style="font-size: 0.85rem;">View Full Vault →</a>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Document</th>
+          <th>Category</th>
+          <th>Expiry Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for doc in recent_docs %}
+        <tr>
+          <td>
+            <strong>{{ doc.title }}</strong>
+            {% if doc.is_ice_document %}
+            <span class="badge badge-ice" style="margin-left: 6px;">ICE</span>
+            {% endif %}
+            <div style="font-size: 0.8rem; color: var(--text-muted);">{{ doc.issuing_authority or 'Personal Record' }}</div>
+          </td>
+          <td>
+            <span class="badge badge-info">{{ doc.category|capitalize }}</span>
+          </td>
+          <td>
+            {% if doc.expiry_date %}
+              {{ doc.expiry_date.strftime('%b %d, %Y') }}
+            {% else %}
+              <span style="color: var(--text-muted);">No Expiry</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{{ url_for('web.view_document', doc_id=doc.id) }}" class="btn btn-secondary btn-sm">Inspect</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 32px;">No documents stored yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Column 2: Upcoming Deadline Timeline -->
+  <div class="table-card" style="padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 1.15rem;">Obligation Timeline</h3>
+      <a href="{{ url_for('web.deadlines') }}" style="font-size: 0.85rem;">Calendar View →</a>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      {% for dl in upcoming_deadlines %}
+      <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 600; font-size: 0.9rem;">{{ dl.title }}</div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">
+            Due {{ dl.due_date.strftime('%b %d, %Y') }}
+            {% if dl.renewal_cost %}
+             • ${{ "{:,.2f}".format(dl.renewal_cost) }}
+            {% endif %}
+          </div>
+        </div>
+        <div>
+          <button onclick="completeDeadline('{{ dl.id }}')" class="btn btn-secondary btn-sm" title="Mark as Completed">✓ Done</button>
+        </div>
+      </div>
+      {% else %}
+      <div style="text-align: center; color: var(--text-muted); padding: 32px;">No upcoming deadlines!</div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

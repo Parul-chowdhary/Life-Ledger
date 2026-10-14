@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account — LifeLedger{% endblock %}
+
+{% block content %}
+<div style="max-width: 460px; margin: 40px auto;">
+  <div class="table-card" style="padding: 32px;">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <h2 style="font-size: 1.8rem; margin-bottom: 8px;">Create Your Vault</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">Client-side encrypted lifecycle document management</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('web.register') }}">
+      <div style="margin-bottom: 18px;">
+        <label for="full_name" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary);">Full Name</label>
+        <input type="text" id="full_name" name="full_name" required placeholder="Sarah Jenkins"
+               style="width: 100%; padding: 10px 14px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.95rem;">
+      </div>
+
+      <div style="margin-bottom: 18px;">
+        <label for="email" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary);">Email Address</label>
+        <input type="email" id="email" name="email" required placeholder="sarah@example.com"
+               style="width: 100%; padding: 10px 14px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.95rem;">
+      </div>
+
+      <div style="margin-bottom: 22px;">
+        <label for="password" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary);">Master Password (min 8 characters)</label>
+        <input type="password" id="password" name="password" minlength="8" required placeholder="••••••••••••"
+               style="width: 100%; padding: 10px 14px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.95rem;">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 11px; font-size: 1rem;">Create Encrypted Vault</button>
+    </form>
+
+    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
+      Already have a vault? <a href="{{ url_for('web.login') }}">Sign In</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

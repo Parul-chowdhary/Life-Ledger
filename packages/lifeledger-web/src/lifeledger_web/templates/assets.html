@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Warranty & Asset Intelligence — LifeLedger{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+  <div>
+    <h1 style="font-size: 1.85rem; font-weight: 700;">Warranty & Asset Management</h1>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+      Track household appliances, consumer electronics, and vehicles. Monitor active warranties and generate formal claim dispute letters.
+    </p>
+  </div>
+</div>
+
+<!-- Assets Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px;">
+  {% for item in asset_cards %}
+  {% set asset = item.asset %}
+  {% set w_status = item.warranty_status %}
+  <div class="table-card" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between;">
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+        <div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 2px;">{{ asset.name }}</h3>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">{{ asset.manufacturer or 'Manufacturer' }} • {{ asset.model_number or 'Model N/A' }}</span>
+        </div>
+        <span class="badge badge-{{ w_status.badge }}">{{ w_status.label }}</span>
+      </div>
+
+      <div style="background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-sm); font-size: 0.85rem; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span style="color: var(--text-secondary);">Serial Number:</span>
+          <span style="font-family: monospace; font-weight: 600;">{{ asset.serial_number or 'N/A' }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span style="color: var(--text-secondary);">Purchase Price:</span>
+          <span>${{ "{:,.2f}".format(asset.purchase_price or 0) }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-secondary);">Coverage End:</span>
+          <span>{{ asset.warranty_expiry_date.strftime('%B %d, %Y') if asset.warranty_expiry_date else 'No expiry' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border-color);">
+      <button class="btn btn-secondary btn-sm open-claim-btn"
+              data-asset-name="{{ asset.name }}"
+              data-manufacturer="{{ asset.manufacturer }}"
+              data-serial-number="{{ asset.serial_number }}"
+              data-expiry="{{ asset.warranty_expiry_date.strftime('%B %d, %Y') if asset.warranty_expiry_date else 'Active' }}">
+        📝 Draft Claim Letter
+      </button>
+      {% if asset.support_phone %}
+      <span style="font-size: 0.8rem; color: var(--text-muted);">Hotline: {{ asset.support_phone }}</span>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+  <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 48px;">
+    No assets or electronics cataloged yet.
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Modal Dialog for Warranty Claim Letter -->
+<div id="claim-letter-modal" class="modal-overlay">
+  <div class="modal-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 1.25rem;">Formal Warranty Claim Notice</h3>
+      <button id="close-claim-modal-btn" class="btn btn-secondary btn-sm">✕ Close</button>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px;">
+      Standardized legal claim notice citing consumer warranty coverage, serial number, and demanded remedy.
+    </p>
+    <textarea id="claim-letter-text" rows="15" readonly
+              style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-family: monospace; font-size: 0.85rem; line-height: 1.4; resize: none; margin-bottom: 16px;"></textarea>
+    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+      <button id="copy-claim-letter-btn" class="btn btn-primary">Copy Claim Letter</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

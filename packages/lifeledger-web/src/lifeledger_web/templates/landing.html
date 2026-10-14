@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}LifeLedger — Personal Document & Deadline Intelligence Platform{% endblock %}
+
+{% block content %}
+<section style="text-align: center; padding: 60px 0 40px 0;">
+  <div class="badge badge-info" style="font-size: 0.85rem; padding: 6px 14px; margin-bottom: 20px;">
+    Institutional Zero-Knowledge Life Administration
+  </div>
+  <h1 style="font-size: 3.2rem; font-weight: 800; line-height: 1.15; margin-bottom: 20px; background: var(--brand-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+    Never Lose a Document.<br>Never Miss a Renewal.
+  </h1>
+  <p style="font-size: 1.25rem; color: var(--text-secondary); max-width: 720px; margin: 0 auto 36px auto;">
+    Store vital bills, warranties, vehicle titles, insurance binders, and certificates in an encrypted vault. Automatically track expiry dates, warranty deadlines, and renewal costs with automated AI intelligence.
+  </p>
+  <div style="display: flex; justify-content: center; gap: 16px;">
+    <a href="{{ url_for('web.register') }}" class="btn btn-primary" style="font-size: 1.05rem; padding: 12px 28px;">Start Your Vault Free</a>
+    <a href="{{ url_for('web.login') }}" class="btn btn-secondary" style="font-size: 1.05rem; padding: 12px 24px;">Sign In to Existing Vault</a>
+  </div>
+</section>
+
+<!-- 4 Core Pillars Grid -->
+<div class="metric-grid" style="margin-top: 40px;">
+  <div class="metric-card">
+    <div style="font-size: 2rem; margin-bottom: 12px;">🛡️</div>
+    <h3 style="margin-bottom: 8px;">AES-256 Encrypted Vault</h3>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+      Client-side envelope encryption keeps your passports, deeds, and health records protected against data exposure.
+    </p>
+  </div>
+  <div class="metric-card">
+    <div style="font-size: 2rem; margin-bottom: 12px;">⏰</div>
+    <h3 style="margin-bottom: 8px;">Deadline Intelligence</h3>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+      RFC 5545 recurrence engine calculates deadlines, sends multi-stage alerts, and generates live iCalendar subscription feeds.
+    </p>
+  </div>
+  <div class="metric-card">
+    <div style="font-size: 2rem; margin-bottom: 12px;">📑</div>
+    <h3 style="margin-bottom: 8px;">1-Click Warranty Claims</h3>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+      Catalog appliance serial numbers and invoices. Generate formal, legally worded warranty claim dispute letters instantly.
+    </p>
+  </div>
+  <div class="metric-card">
+    <div style="font-size: 2rem; margin-bottom: 12px;">🔍</div>
+    <h3 style="margin-bottom: 8px;">OCR & Smart Extraction</h3>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+      Optical character recognition extracts policy numbers, expiry dates, amounts, and vendors with human-in-the-loop review.
+    </p>
+  </div>
+</div>
+
+<!-- Interactive Live Demonstration Section -->
+<div class="table-card" style="margin-top: 48px; padding: 32px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+      <h2 style="font-size: 1.5rem;">Urgent Household Obligations Radar</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">Real-time sample telemetry showing how LifeLedger categorizes imminent deadlines</p>
+    </div>
+    <span class="badge badge-danger">Live Intelligence Active</span>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Document / Obligation</th>
+        <th>Category</th>
+        <th>Due Date</th>
+        <th>Urgency</th>
+        <th>Projected Cost</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Geico Automobile Insurance</strong></td>
+        <td><span class="badge badge-info">Insurance</span></td>
+        <td>Oct 18, 2026</td>
+        <td><span class="badge badge-danger">Due in 4 Days</span></td>
+        <td>$480.00</td>
+        <td><a href="{{ url_for('web.login') }}" class="btn btn-primary btn-sm">1-Click Renew</a></td>
+      </tr>
+      <tr>
+        <td><strong>MacBook Pro M3 AppleCare+</strong></td>
+        <td><span class="badge badge-warning">Warranty</span></td>
+        <td>Oct 26, 2026</td>
+        <td><span class="badge badge-warning">Due in 12 Days</span></td>
+        <td>$0.00 (Claimable)</td>
+        <td><a href="{{ url_for('web.login') }}" class="btn btn-secondary btn-sm">Draft Claim Letter</a></td>
+      </tr>
+      <tr>
+        <td><strong>City Water & Municipal Utility</strong></td>
+        <td><span class="badge badge-info">Bill</span></td>
+        <td>Nov 02, 2026</td>
+        <td><span class="badge badge-success">Upcoming (19d)</span></td>
+        <td>$84.50</td>
+        <td><a href="{{ url_for('web.login') }}" class="btn btn-secondary btn-sm">View Invoice</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}

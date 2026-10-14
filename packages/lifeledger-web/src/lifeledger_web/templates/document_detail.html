@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}{{ document.title }} — LifeLedger{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+  <div style="margin-bottom: 20px;">
+    <a href="{{ url_for('web.vault') }}" style="font-size: 0.85rem;">← Back to Vault</a>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+        <h1 style="font-size: 1.85rem; font-weight: 700;">{{ document.title }}</h1>
+        {% if document.is_ice_document %}
+        <span class="badge badge-ice">ICE Emergency Document</span>
+        {% endif %}
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">
+        Category: <strong style="color: var(--text-primary);">{{ document.category|capitalize }}</strong> • 
+        Issuer: <strong style="color: var(--text-primary);">{{ document.issuing_authority or 'Personal Record' }}</strong>
+      </p>
+    </div>
+
+    <div>
+      {% if document.versions %}
+      <a href="{{ url_for('web.download_document', doc_id=document.id) }}" class="btn btn-primary">
+        ⬇️ Download Decrypted
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Detail Information Card -->
+  <div class="table-card" style="padding: 24px; margin-bottom: 24px;">
+    <h3 style="font-size: 1.15rem; margin-bottom: 18px;">Document Metadata</h3>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 0.9rem;">
+      <div style="background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-sm);">
+        <div style="color: var(--text-secondary); font-size: 0.8rem;">EXPIRY / RENEWAL DATE</div>
+        <div style="font-weight: 600; font-size: 1.05rem; margin-top: 4px;">
+          {{ document.expiry_date.strftime('%B %d, %Y') if document.expiry_date else 'No expiration date' }}
+        </div>
+      </div>
+
+      <div style="background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-sm);">
+        <div style="color: var(--text-secondary); font-size: 0.8rem;">PROJECTED RENEWAL COST</div>
+        <div style="font-weight: 600; font-size: 1.05rem; margin-top: 4px;">
+          ${{ "{:,.2f}".format(document.renewal_cost or 0) }}
+        </div>
+      </div>
+
+      <div style="background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-sm);">
+        <div style="color: var(--text-secondary); font-size: 0.8rem;">AUTO-RENEWAL STATUS</div>
+        <div style="font-weight: 600; margin-top: 4px;">
+          {% if document.auto_renew %}
+          <span style="color: var(--status-success);">Active (Auto-Pay Enabled)</span>
+          {% else %}
+          <span style="color: var(--text-muted);">Manual Action Required</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div style="background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-sm);">
+        <div style="color: var(--text-secondary); font-size: 0.8rem;">RECORD CREATED</div>
+        <div style="font-weight: 600; margin-top: 4px;">
+          {{ document.created_at.strftime('%B %d, %Y') }}
+        </div>
+      </div>
+    </div>
+
+    {% if document.notes %}
+    <div style="margin-top: 20px;">
+      <div style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 6px;">NOTES & IDENTIFIERS</div>
+      <div style="background: var(--bg-tertiary); padding: 14px; border-radius: var(--radius-sm); font-size: 0.9rem;">
+        {{ document.notes }}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Immutable Versions History Table -->
+  <div class="table-card" style="padding: 24px;">
+    <h3 style="font-size: 1.15rem; margin-bottom: 16px;">Version History & Cryptographic Checksums</h3>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Version</th>
+          <th>Filename</th>
+          <th>Size</th>
+          <th>SHA-256 Digest</th>
+          <th>Uploaded At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ver in document.versions %}
+        <tr>
+          <td><span class="badge badge-info">v{{ ver.version_number }}</span></td>
+          <td>{{ ver.file_name }}</td>
+          <td>{{ "{:,.1f}".format(ver.file_size_bytes / 1024) }} KB</td>
+          <td style="font-family: monospace; font-size: 0.75rem;">{{ ver.sha256_hash[:16] }}...</td>
+          <td>{{ ver.created_at.strftime('%b %d, %Y') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

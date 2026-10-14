@@ -4,15 +4,6 @@ Verifies HTTP endpoints, session auth cookies, dashboard view rendering,
 vault filtering, and iCalendar feed export.
 """
 import pytest
-from run_app import create_app
-
-
-@pytest.fixture
-def client():
-    app = create_app()
-    app.config["TESTING"] = True
-    with app.test_client() as client:
-        yield client
 
 
 def test_landing_page(client):

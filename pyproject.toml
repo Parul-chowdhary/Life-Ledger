@@ -59,6 +59,8 @@ pythonpath = [
     "packages/lifeledger-services/src",
     "packages/lifeledger-web/src",
     "packages/lifeledger-api/src",
+    "packages/lifeledger-sdk-py/src",
+    "packages/lifeledger-cli/src",
 ]
 addopts = "-v --strict-markers"
 filterwarnings = [

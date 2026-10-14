@@ -51,6 +51,15 @@ target-version = "py312"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+pythonpath = [
+    ".",
+    "packages/lifeledger-core/src",
+    "packages/lifeledger-models/src",
+    "packages/lifeledger-repositories/src",
+    "packages/lifeledger-services/src",
+    "packages/lifeledger-web/src",
+    "packages/lifeledger-api/src",
+]
 addopts = "-v --strict-markers"
 filterwarnings = [
     "ignore::DeprecationWarning",

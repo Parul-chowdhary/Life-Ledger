@@ -8,7 +8,18 @@ from typing import Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
-WORKSPACE_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
+# Dynamically find repository workspace root
+def find_workspace_root() -> Path:
+    current = Path(__file__).resolve().parent
+    for _ in range(8):
+        if (current / "pyproject.toml").exists() or (current / ".git").exists():
+            return current
+        current = current.parent
+    return Path.cwd().resolve()
+
+WORKSPACE_ROOT = find_workspace_root()
+(WORKSPACE_ROOT / "instance").mkdir(parents=True, exist_ok=True)
+(WORKSPACE_ROOT / "var" / "storage").mkdir(parents=True, exist_ok=True)
 
 
 class LifeLedgerSettings(BaseSettings):
@@ -25,7 +36,7 @@ class LifeLedgerSettings(BaseSettings):
 
     # Database
     database_url: str = Field(
-        default=f"sqlite:///{WORKSPACE_ROOT / 'instance' / 'lifeledger.db'}",
+        default=f"sqlite:///{(WORKSPACE_ROOT / 'instance' / 'lifeledger.db').as_posix()}",
         description="Database connection URI"
     )
 

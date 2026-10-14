@@ -8,6 +8,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Fix Windows console encoding
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
 
 EXCLUDE_DIRS = {

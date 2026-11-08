@@ -6,7 +6,7 @@ and tenant-isolated multi-field document search.
 from collections import defaultdict
 import math
 import re
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set
 
 
 def soundex(word: str) -> str:

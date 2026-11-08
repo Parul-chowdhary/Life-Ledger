@@ -3,7 +3,7 @@ Search Indexing & Phonetic Retrieval Engine.
 Implements Soundex phonetic hashing, BM25-style inverted indexing,
 and tenant-isolated multi-field document search.
 """
-from collections import defaultdict
+from typing import Any, Dict, List, Optional, Setfrom collections import defaultdict
 import math
 import re
 from typing import Any, Dict, List, Optional, Set
